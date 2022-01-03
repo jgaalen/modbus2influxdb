@@ -7,6 +7,7 @@
 ```bash
 git clone https://github.com/jgaalen/modbus2influxdb.git
 pip3 install -U pymodbus pymodbusTCP
+pip3 install -U pymodbus influxdb
 ```
 
 ## Tested on

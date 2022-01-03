@@ -132,12 +132,13 @@ def getRegisterList():
     getModbusValues(31247, 2)
 
     for device in devices:
-        value = round(decodedList[str(device.address)] / device.divisor, device.decimals)
         if (("Volt" in device.name or "Temp" in device.name or "Frequency" in device.name) \
                 and (decodedList[str(device.address)] == U32_NAN or decodedList[str(device.address)] == S32_NAN)):
             value = None
         elif (decodedList[str(device.address)] == S32_NAN or decodedList[str(device.address)] == U32_NAN):
-            value = 0
+            value = 0.0
+        else:
+            value = round(decodedList[str(device.address)] / device.divisor, device.decimals)
         valuesList[device.name] = value
 
     if (VALUES_TO_CONSOLE):
