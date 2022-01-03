@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
