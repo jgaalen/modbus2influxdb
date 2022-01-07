@@ -168,7 +168,7 @@ def sendToDomoticz():
             if (device.idx != 0):
                 value = str(valuesList[device.name])
                 if (device == AC_WATT):
-                    value += ';' + str(valuesList[TOTAL_PROD.name])
+                    value += ';' + str(valuesList[DAY_PROD.name])
                 url = DOMOTICZ_PROTOCOL + '://' + DOMOTICZ_USERNAME + ':' + DOMOTICZ_PASSWORD + '@' + \
                       DOMOTICZ_HOST + ':' + str(DOMOTICZ_PORT) + '/json.htm'
                 params = {
