@@ -16,7 +16,7 @@ SMA_PORT=502
 UNIT_ID=3
 
 ### CONSOLE
-VALUES_TO_CONSOLE=False
+CONSOLE_ENABLED=True
 
 ### INFLUXDB PARAMETERS
 INFLUX_ENABLED=True
@@ -29,7 +29,7 @@ MEASUREMENT_NAME="Solar"
 INVERTER_NAME="SMA"
 
 ### DOMOTICZ PARAMETERS
-DOMOTICZ_ENABLED = True
+DOMOTICZ_ENABLED = False
 DOMOTICZ_PROTOCOL = 'http'
 DOMOTICZ_HOST = '127.0.0.1'
 DOMOTICZ_PORT = 8080
@@ -141,13 +141,10 @@ def getRegisterList():
             value = round(decodedList[str(device.address)] / device.divisor, device.decimals)
         valuesList[device.name] = value
 
-    if (VALUES_TO_CONSOLE):
-        for name, value in valuesList.items():
-            print(name + "\t" + str(value))
-
-def sendToInfluxDB():
+def sendToInfluxDB(now):
     json_body = [
         {
+            "time": now,
             "measurement": MEASUREMENT_NAME ,
             "tags": {
                 "host": INVERTER_NAME
@@ -182,6 +179,10 @@ def sendToDomoticz():
     except:
         print("Domoticz connection problem")
 
+def sendToConsole():
+    for name, value in valuesList.items():
+        print(name + "\t" + str(value))
+
 if __name__ == "__main__":
 
     connectModbus()
@@ -192,16 +193,20 @@ if __name__ == "__main__":
     while True:
         try:
             next_poll += INTERVAL_MS
-
+            start = int(time.time() * 1000)
             getRegisterList()
+            valuesList['responseTime'] = int(time.time() * 1000) - start
+
+            if CONSOLE_ENABLED: sendToConsole()
+            if INFLUX_ENABLED: sendToInfluxDB(start * 1000000)
+            if DOMOTICZ_ENABLED: sendToDomoticz()
+
             if(valuesList[DC_VOLT_A.name] == None and valuesList[DC_VOLT_B.name] == None):
                 next_poll += INTERVAL_NODATA_MS - INTERVAL_MS
+
             sleep_time = max((next_poll - (time.time() * 1000)) / 1000, 0)
             if (sleep_time == 0):
                 next_poll = (time.time() * 1000)
-
-            if INFLUX_ENABLED: sendToInfluxDB()
-            if DOMOTICZ_ENABLED: sendToDomoticz()
 
             time.sleep(sleep_time)
         except KeyboardInterrupt:
